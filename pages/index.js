@@ -59,9 +59,9 @@ export default function HomePage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: appConfig.theme.colors.primary[500],
+          backgroundColor: appConfig.theme.colors.neutrals[500],
           backgroundImage:
-            "url(https://virtualbackgrounds.site/wp-content/uploads/2020/08/the-matrix-digital-rain.jpg)",
+            "url(https://i.pinimg.com/originals/4f/53/df/4f53df80cbcdd60c30626586d369648a.gif)",
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           backgroundBlendMode: "multiply",
@@ -82,7 +82,7 @@ export default function HomePage() {
             padding: "32px",
             margin: "16px",
             boxShadow: "0 2px 10px 0 rgb(0 0 0 / 20%)",
-            backgroundColor: appConfig.theme.colors.neutrals[700],
+            backgroundColor: appConfig.theme.colors.neutrals[950],
           }}
         >
           {/* Formulário */}
@@ -98,7 +98,7 @@ export default function HomePage() {
               marginBottom: "32px",
             }}
           >
-            <Title tag="h2">Boas vindas de volta!</Title>
+            <Title tag="h2">¡Bienvenido de nuevo!</Title>
             <Text
               variant="body3"
               styleSheet={{
@@ -122,7 +122,7 @@ export default function HomePage() {
             />
             <Button
               type="submit"
-              label="Entrar"
+              label="Iniciar sesión"
               fullWidth
               buttonColors={{
                 contrastColor: appConfig.theme.colors.neutrals["000"],
