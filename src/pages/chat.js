@@ -6,9 +6,16 @@ import {
   Button,
   Icon,
 } from "@skynexui/components";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import appConfig from "../../config.json";
 import uniqueId from "lodash/uniqueId";
+import { createClient } from "@supabase/supabase-js";
+
+const SUPABASE_PUBLIC_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzU1MjAwNywiZXhwIjoxOTU5MTI4MDA3fQ.4Vvu5Rh00WqSeM0THjKTxi4Mg1T4PeNk9KYhelN6Yps";
+
+const SUPABASE_URL = "https://andshrzixucgwstlaxgz.supabase.co";
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLIC_ANON_KEY);
 
 export default function ChatPage() {
   const [message, setMessage] = useState("");
@@ -16,10 +23,17 @@ export default function ChatPage() {
 
   function addNewMessage() {
     if (message.trim()) {
-      setMessages((messagesOld) => [
-        { id: uniqueId("aluracord"), text: message.trim(), from: "Iury" },
-        ...messagesOld,
-      ]);
+      const newMessage = {
+        text: message.trim(),
+        from: "iury-sousa",
+      };
+
+      supabaseClient
+        .from("messages")
+        .insert([newMessage])
+        .then(({ data }) =>
+          setMessages((messagesOld) => [data[0], ...messagesOld])
+        );
     }
 
     setMessage("");
@@ -32,10 +46,20 @@ export default function ChatPage() {
     }
   }
 
-  const removeMessage = useCallback((messageId) => {
+  const removeMessage = useCallback(async (messageId) => {
+    await supabaseClient.from("messages").delete().match({ id: messageId });
+
     setMessages((messagesOld) =>
       messagesOld.filter((message) => message.id !== messageId)
     );
+  }, []);
+
+  useEffect(() => {
+    supabaseClient
+      .from("messages")
+      .select("*")
+      .order("id", { ascending: false })
+      .then(({ data }) => setMessages(data));
   }, []);
 
   return (
@@ -98,7 +122,7 @@ export default function ChatPage() {
                 resize: "none",
                 borderRadius: "5px",
                 padding: "6px 8px",
-                backgroundColor: appConfig.theme.colors.neutrals[800],
+                backgroundColor: appConfig.theme.colors.neutrals[950],
                 color: appConfig.theme.colors.neutrals[200],
                 fontSize: "1rem",
               }}
@@ -172,7 +196,7 @@ function MessageList(props) {
     <Box
       tag="ul"
       styleSheet={{
-        overflow: "hidden",
+        overflowY: "auto",
         display: "flex",
         flexDirection: "column-reverse",
         flex: 1,
@@ -217,7 +241,7 @@ function MessageList(props) {
                     display: "inline-block",
                     marginRight: "8px",
                   }}
-                  src={`https://github.com/iury-sousa.png`}
+                  src={`https://github.com/${message.from}.png`}
                 />
 
                 <Text
@@ -273,7 +297,15 @@ function MessageList(props) {
                 }}
                 tag="span"
               >
-                {new Date().toLocaleDateString()}
+                {new Intl.DateTimeFormat("default", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  // hour: "numeric",
+                  // minute: "numeric",
+                  // second: "numeric",
+                  hour12: false,
+                }).format(new Date(message.created_at))}
               </Text>
             </Box>
           </Text>
