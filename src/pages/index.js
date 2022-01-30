@@ -111,6 +111,9 @@ export default function HomePage() {
               styleSheet={{
                 marginBottom: "32px",
                 color: appConfig.theme.colors.neutrals[300],
+                fontSize: ".9rem",
+                fontWeight: "400",
+                fontFamily: "Poppins",
               }}
             >
               {appConfig.name}
@@ -134,6 +137,10 @@ export default function HomePage() {
               label="Iniciar sesión"
               fullWidth
               size="md"
+              styleSheet={{
+                fontFamily: "Poppins",
+                fontWeight: "400",
+              }}
               buttonColors={{
                 contrastColor: appConfig.theme.colors.neutrals["000"],
                 mainColor: appConfig.theme.colors.primary[500],
