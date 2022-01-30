@@ -8,8 +8,9 @@ import {
 } from "@skynexui/components";
 import { useState, useCallback, useEffect } from "react";
 import appConfig from "../../config.json";
-import uniqueId from "lodash/uniqueId";
 import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/router";
+import { ButtonSendSticker } from "../components/ButtonSendSticker";
 
 const SUPABASE_PUBLIC_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzU1MjAwNywiZXhwIjoxOTU5MTI4MDA3fQ.4Vvu5Rh00WqSeM0THjKTxi4Mg1T4PeNk9KYhelN6Yps";
@@ -17,23 +18,30 @@ const SUPABASE_PUBLIC_ANON_KEY =
 const SUPABASE_URL = "https://andshrzixucgwstlaxgz.supabase.co";
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLIC_ANON_KEY);
 
+function onRealTimeMessages(addNewMessage) {
+  return supabaseClient
+    .from("messages")
+    .on("INSERT", (response) => addNewMessage(response.new))
+    .subscribe();
+}
+
 export default function ChatPage() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const router = useRouter();
+  const user = router.query?.username;
 
-  function addNewMessage() {
-    if (message.trim()) {
-      const newMessage = {
-        text: message.trim(),
-        from: "iury-sousa",
+  async function addNewMessage(newMessage) {
+    if (newMessage.trim()) {
+      const tempMessage = {
+        text: newMessage.trim(),
+        from: user,
       };
 
-      supabaseClient
+      await supabaseClient
         .from("messages")
-        .insert([newMessage])
-        .then(({ data }) =>
-          setMessages((messagesOld) => [data[0], ...messagesOld])
-        );
+        .insert([tempMessage])
+        .then(({ data }) => console.log(data));
     }
 
     setMessage("");
@@ -42,7 +50,7 @@ export default function ChatPage() {
   function handleKeyPress(event) {
     if (event.key === "Enter") {
       event.preventDefault();
-      addNewMessage();
+      addNewMessage(message);
     }
   }
 
@@ -60,6 +68,12 @@ export default function ChatPage() {
       .select("*")
       .order("id", { ascending: false })
       .then(({ data }) => setMessages(data));
+
+    const subscription = onRealTimeMessages((message) =>
+      setMessages((messagesOld) => [message, ...messagesOld])
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
@@ -128,26 +142,40 @@ export default function ChatPage() {
               }}
             />
 
-            <Button
-              onClick={addNewMessage}
-              variant="primary"
-              colorVariant="neutral"
-              iconName="FaPaperPlane"
-              size="md"
-              disabled={message?.trim()?.length === 0}
-              rounded="sm"
-              type="button"
+            <Box
               styleSheet={{
-                fontSize: "1.25rem",
+                display: "flex",
                 marginLeft: "1rem",
+                gap: ".5rem",
               }}
-              buttonColors={{
-                contrastColor: appConfig.theme.colors.neutrals["000"],
-                mainColor: appConfig.theme.colors.primary[400],
-                mainColorLight: appConfig.theme.colors.primary[400],
-                mainColorStrong: appConfig.theme.colors.primary[600],
-              }}
-            />
+            >
+              <ButtonSendSticker
+                onStickerClick={(sticker) => {
+                  addNewMessage(`:sticker:${sticker}`);
+                }}
+              />
+
+              <Button
+                onClick={() => addNewMessage(message)}
+                variant="primary"
+                colorVariant="neutral"
+                iconName="FaPaperPlane"
+                size="md"
+                disabled={message?.trim()?.length === 0 || !user}
+                rounded="sm"
+                type="button"
+                styleSheet={{
+                  fontSize: "1.25rem",
+                  marginVertical: "auto",
+                }}
+                buttonColors={{
+                  contrastColor: appConfig.theme.colors.neutrals["000"],
+                  mainColor: appConfig.theme.colors.primary[400],
+                  mainColorLight: appConfig.theme.colors.primary[400],
+                  mainColorStrong: appConfig.theme.colors.primary[600],
+                }}
+              />
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -286,7 +314,11 @@ function MessageList(props) {
                   fontSize: "1rem",
                 }}
               >
-                {message.text}
+                {message?.text?.startsWith(":sticker:") ? (
+                  <Image src={message.text.replace(":sticker:", "")} />
+                ) : (
+                  message.text
+                )}
               </Text>
               <Text
                 styleSheet={{
