@@ -1,5 +1,5 @@
 import { Box, Button, Text, TextField, Image } from "@skynexui/components";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import appConfig from "../../config.json";
 import { useRouter } from "next/router";
 import debounce from "lodash/debounce";
@@ -23,7 +23,7 @@ function Title(props) {
 
 export default function HomePage() {
   const [user, setUser] = useState();
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("iury-sousa");
   const router = useRouter();
 
   const userSearch = useMemo(
@@ -55,6 +55,12 @@ export default function HomePage() {
     },
     [userSearch]
   );
+
+  useEffect(() => {
+    if (username) {
+      userSearch(username);
+    }
+  }, []);
 
   return (
     <>

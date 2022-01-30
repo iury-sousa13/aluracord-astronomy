@@ -97,8 +97,8 @@ export default function ChatPage() {
           borderRadius: "5px",
           backgroundColor: appConfig.theme.colors.neutrals[950],
           height: "100%",
-          maxWidth: "70%",
-          maxHeight: "70vh",
+          maxWidth: { sm: "95%", md: "75%" },
+          maxHeight: { sm: "95%", md: "75%" },
           padding: "32px",
         }}
       >
@@ -241,6 +241,8 @@ function MessageList(props) {
               borderRadius: "5px",
               padding: "12px 16px",
               marginBottom: "2px",
+              maxWidth: "60%",
+              width: "fit-content",
               hover: {
                 backgroundColor: appConfig.theme.colors.neutrals[700],
               },
@@ -273,19 +275,25 @@ function MessageList(props) {
                 />
 
                 <Text
-                  tag="strong"
+                  as="a"
+                  href={`https://github.com/${message.from}`}
+                  target="_blank"
                   styleSheet={{
                     fontSize: ".925rem",
                     color: appConfig.theme.colors.primary[400],
                     fontWeight: "bold",
                     margin: "auto 0",
+                    textDecoration: "none",
+                    hover: {
+                      textDecoration: "underline",
+                    },
                   }}
                 >
                   {message.from}
                 </Text>
               </Box>
 
-              <Icon
+              {/* <Icon
                 onClick={() => props.removeMessage(message.id)}
                 name="FaTimes"
                 size="1rem"
@@ -296,7 +304,7 @@ function MessageList(props) {
                   transition: "color .15s ease-out",
                   hover: { color: appConfig.theme.colors.primary[600] },
                 }}
-              />
+              /> */}
             </Box>
 
             <Box
@@ -310,14 +318,16 @@ function MessageList(props) {
                 tag="p"
                 styleSheet={{
                   flex: "1",
+                  overflowWrap: "anywhere",
                   color: appConfig.theme.colors.neutrals[200],
                   fontSize: "1rem",
+                  lineHeight: "1.125rem",
                 }}
               >
                 {message?.text?.startsWith(":sticker:") ? (
                   <Image
                     src={message.text.replace(":sticker:", "")}
-                    styleSheet={{ maxWidth: "320px", maxHeight: "240px" }}
+                    styleSheet={{ maxWidth: "128px", maxHeight: "128px" }}
                   />
                 ) : (
                   message.text
@@ -336,9 +346,6 @@ function MessageList(props) {
                   year: "numeric",
                   month: "2-digit",
                   day: "2-digit",
-                  // hour: "numeric",
-                  // minute: "numeric",
-                  // second: "numeric",
                   hour12: false,
                 }).format(new Date(message.created_at))}
               </Text>
