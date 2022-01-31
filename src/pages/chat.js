@@ -1,22 +1,14 @@
-import {
-  Box,
-  Text,
-  TextField,
-  Image,
-  Button,
-  Icon,
-} from "@skynexui/components";
+import { Box, Text, TextField, Image, Button } from "@skynexui/components";
 import { useState, useCallback, useEffect } from "react";
 import appConfig from "../../config.json";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/router";
 import { ButtonSendSticker } from "../components/ButtonSendSticker";
 
-const SUPABASE_PUBLIC_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzU1MjAwNywiZXhwIjoxOTU5MTI4MDA3fQ.4Vvu5Rh00WqSeM0THjKTxi4Mg1T4PeNk9KYhelN6Yps";
-
-const SUPABASE_URL = "https://andshrzixucgwstlaxgz.supabase.co";
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLIC_ANON_KEY);
+const supabaseClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_ANON_KEY
+);
 
 function onRealTimeMessages(addNewMessage) {
   return supabaseClient
